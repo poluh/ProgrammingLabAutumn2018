@@ -7,6 +7,7 @@ public class Cell {
     private Point point;
     private boolean isWhite;
     private boolean isKing = false;
+    private boolean isEmpty = true;
 
     public Cell(Point point) {
         this.point = point;
@@ -18,6 +19,7 @@ public class Cell {
 
     public void setWhite(boolean white) {
         isWhite = white;
+        isEmpty = false;
     }
 
     public boolean isWhite() {
@@ -42,5 +44,9 @@ public class Cell {
     @Override
     public int hashCode() {
         return Objects.hash(point, isWhite(), isKing());
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
     }
 }
