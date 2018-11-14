@@ -46,11 +46,11 @@ public class Cell {
     public boolean equals(Object o) {
         if (this == o) return true;
         var cell = (Cell) o;
-        return point.equals(cell);
+        return point.equals(cell.point) && isEmpty == cell.isEmpty;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(point, isWhite(), isKing());
+        return Objects.hash(point, isEmpty(), isWhite(), isKing());
     }
 }

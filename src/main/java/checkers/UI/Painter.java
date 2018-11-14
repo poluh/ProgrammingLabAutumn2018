@@ -48,8 +48,9 @@ public class Painter {
         points.forEach(point -> gc.strokeRect(point.x * CELL_SIZE, point.y * CELL_SIZE, CELL_SIZE, CELL_SIZE));
     }
 
-    public void move(Point oldPoint, Point newPoint, boolean isWhite) {
+    public void move(Point oldPoint, Point toMove, Point chopPoint, boolean isWhite) {
+        if (chopPoint != null) printCell(chopPoint, isWhite, true);
         printCell(oldPoint, isWhite, true);
-        printCell(newPoint, isWhite, false);
+        printCell(toMove, isWhite, false);
     }
 }

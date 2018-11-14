@@ -4,6 +4,7 @@ import checkers.logic.structure.Cell;
 import checkers.logic.structure.Point;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class Field implements Cloneable {
@@ -20,6 +21,7 @@ public class Field implements Cloneable {
                 var cell = new Cell(point);
                 if ((x + y) % 2 == 0 && (y < 3 || y > 4)) {
                     cell.setWhite(y > 4);
+                    cell.setEmpty(false);
                 }
                 cells.put(point, cell);
             }
@@ -28,12 +30,13 @@ public class Field implements Cloneable {
 
     public Set<Point> thatCanChop(boolean isWhite) {
         var res = new HashSet<Point>();
-
+        var enemiesIsEmpty = new AtomicBoolean(true);
         cells.forEach((key, value) -> {
             if (value.isWhite() == isWhite) {
                 if (!possibleMovesWithEnemies(key, isWhite).isEmpty()) {
+                    enemiesIsEmpty.set(false);
                     res.add(key);
-                } else if (!possibleEmptyMoves(key).isEmpty()) {
+                } else if (!possibleEmptyMoves(key).isEmpty() && enemiesIsEmpty.get()) {
                     res.add(key);
                 }
             }
@@ -72,7 +75,7 @@ public class Field implements Cloneable {
                 var cellToMove = cells.get(toMove);
 
                 if (!cellCheck.isEmpty() && cellCheck.isWhite() == !isWhite && cellToMove.isEmpty()) {
-                    res.put(forCheck, toMove);
+                    res.put(toMove, forCheck);
                 }
             }
         }
@@ -87,13 +90,12 @@ public class Field implements Cloneable {
         move(newPos, toMove, chopPoint, true);
     }
 
-    private void move(Point newPos, Point oldPos, Point chopPoint, boolean chop) {
-        if (!isNormalPoss(oldPos) || !isNormalPoss(newPos) || (chop && !isNormalPoss(chopPoint))) return;
+    private void move(Point oldPos, Point toMove, Point chopPoint, boolean chop) {
+        if (!isNormalPoss(oldPos) || !isNormalPoss(toMove) || (chop && !isNormalPoss(chopPoint))) return;
 
         if (chop) cells.get(chopPoint).setEmpty(true);
 
-
-        cells.put(newPos, cells.get(oldPos));
+        cells.put(toMove, cells.get(oldPos));
         cells.put(oldPos, new Cell(oldPos));
     }
 
@@ -106,7 +108,7 @@ public class Field implements Cloneable {
     }
 
     public Set<Cell> getBlackCells() {
-        return cells.values().stream().filter(cell -> !cell.isWhite()).collect(Collectors.toSet());
+        return cells.values().stream().filter(cell -> !cell.isWhite() && !cell.isEmpty()).collect(Collectors.toSet());
     }
 
     private void setCells(Map<Point, Cell> cells) {
