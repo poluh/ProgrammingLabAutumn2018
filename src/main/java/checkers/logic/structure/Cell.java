@@ -34,6 +34,14 @@ public class Cell {
         isKing = king;
     }
 
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+
+    public void setEmpty(boolean empty) {
+        isEmpty = empty;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,9 +52,5 @@ public class Cell {
     @Override
     public int hashCode() {
         return Objects.hash(point, isWhite(), isKing());
-    }
-
-    public boolean isEmpty() {
-        return isEmpty;
     }
 }

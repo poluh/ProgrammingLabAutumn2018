@@ -78,6 +78,22 @@ public class Field implements Cloneable {
         return res;
     }
 
+    public void move(Point oldPos, Point newPos) {
+        move(oldPos, newPos, null, false);
+    }
+
+    public void move(Point oldPos, Point newPos, Point chopPoint) {
+        move(oldPos, newPos, chopPoint, true);
+    }
+
+    private void move(Point oldPos, Point newPos, Point chopPoint, boolean chop) {
+        if (!isNormalPoss(oldPos) || !isNormalPoss(newPos) || (chop && !isNormalPoss(chopPoint))) return;
+        if (chop) cells.get(chopPoint).setEmpty(true);
+
+        cells.put(newPos, cells.get(newPos));
+        cells.get(oldPos).setEmpty(true);
+    }
+
     public boolean isNormalPoss(Point point) {
         return point.x >= 0 && point.x < 8 && point.y >= 0 && point.y < 8;
     }
