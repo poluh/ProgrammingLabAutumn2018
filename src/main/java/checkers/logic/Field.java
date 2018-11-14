@@ -4,16 +4,13 @@ import checkers.logic.structure.Cell;
 import checkers.logic.structure.Point;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Field implements Cloneable {
     private Map<Point, Cell> cells;
-    private Set<Cell> whiteCells;
-    private Set<Cell> blackCells;
 
     public Field() {
         cells = new HashMap<>();
-        whiteCells = new HashSet<>();
-        blackCells = new HashSet<>();
     }
 
     public void init() {
@@ -21,23 +18,27 @@ public class Field implements Cloneable {
             for (int y = 0; y < 8; ++y) {
                 var point = new Point(x, y);
                 var cell = new Cell(point);
-                if ((x + y) % 2 == 0 && (y < 3 || y > 4)) cell.setWhite(y > 4);
+                if ((x + y) % 2 == 0 && (y < 3 || y > 4)) {
+                    cell.setWhite(y > 4);
+                }
                 cells.put(point, cell);
             }
         }
     }
 
     public Set<Point> thatCanChop(boolean isWhite) {
-        var cellsCheck = isWhite ? whiteCells : blackCells;
         var res = new HashSet<Point>();
 
-        for (var cell : cellsCheck) {
-            if (!possibleMovesWithEnemies(cell.getPoint(), isWhite).isEmpty()) {
-                res.add(cell.getPoint());
-            } else if (!possibleEmptyMoves(cell.getPoint()).isEmpty()) {
-                res.add(cell.getPoint());
+        cells.forEach((key, value) -> {
+            if (value.isWhite() == isWhite) {
+                if (!possibleMovesWithEnemies(key, isWhite).isEmpty()) {
+                    res.add(key);
+                } else if (!possibleEmptyMoves(key).isEmpty()) {
+                    res.add(key);
+                }
             }
-        }
+        });
+
         return res;
     }
 
@@ -62,36 +63,38 @@ public class Field implements Cloneable {
 
         for (var dx = -1; dx < 2; dx += 2) {
             for (var dy = -1; dy < 2; dy += 2) {
-                var pointCheck = new Point(point.x + dx, point.y + dy);
-                var pointMove = new Point(point.x + dx + dx, point.y + dy + dy);
+                var forCheck = new Point(point.x + dx, point.y + dy);
+                var toMove = new Point(forCheck.x + dx, forCheck.y + dy);
 
-                if (!isNormalPoss(pointCheck) || !isNormalPoss(pointMove)) break;
+                if (!isNormalPoss(forCheck) || !isNormalPoss(toMove)) break;
 
-                var cellCheck = cells.get(pointCheck);
-                var cellToMove = cells.get(pointMove);
+                var cellCheck = cells.get(forCheck);
+                var cellToMove = cells.get(toMove);
 
-                if (!cellCheck.isEmpty() && cellToMove.isEmpty() && cellCheck.isWhite() == !isWhite) {
-                    res.put(pointCheck, pointMove);
+                if (!cellCheck.isEmpty() && cellCheck.isWhite() == !isWhite && cellToMove.isEmpty()) {
+                    res.put(forCheck, toMove);
                 }
             }
         }
         return res;
     }
 
-    public void move(Point oldPos, Point newPos) {
-        move(oldPos, newPos, null, false);
+    public void move(Point newPos, Point toMove) {
+        move(newPos, toMove, null, false);
     }
 
-    public void move(Point oldPos, Point newPos, Point chopPoint) {
-        move(oldPos, newPos, chopPoint, true);
+    public void move(Point newPos, Point toMove, Point chopPoint) {
+        move(newPos, toMove, chopPoint, true);
     }
 
-    private void move(Point oldPos, Point newPos, Point chopPoint, boolean chop) {
+    private void move(Point newPos, Point oldPos, Point chopPoint, boolean chop) {
         if (!isNormalPoss(oldPos) || !isNormalPoss(newPos) || (chop && !isNormalPoss(chopPoint))) return;
+
         if (chop) cells.get(chopPoint).setEmpty(true);
 
-        cells.put(newPos, cells.get(newPos));
-        cells.get(oldPos).setEmpty(true);
+
+        cells.put(newPos, cells.get(oldPos));
+        cells.put(oldPos, new Cell(oldPos));
     }
 
     public boolean isNormalPoss(Point point) {
@@ -99,31 +102,29 @@ public class Field implements Cloneable {
     }
 
     public Set<Cell> getWhiteCells() {
-        return whiteCells;
+        return cells.values().stream().filter(Cell::isWhite).collect(Collectors.toSet());
     }
 
     public Set<Cell> getBlackCells() {
-        return blackCells;
+        return cells.values().stream().filter(cell -> !cell.isWhite()).collect(Collectors.toSet());
     }
 
     private void setCells(Map<Point, Cell> cells) {
         this.cells = cells;
     }
 
-    private void setWhiteCells(Set<Cell> whiteCells) {
-        this.whiteCells = whiteCells;
-    }
-
-    private void setBlackCells(Set<Cell> blackCells) {
-        this.blackCells = blackCells;
+    public String print() {
+        var sb = new StringBuilder();
+        for (Point cell : cells.keySet()) {
+            sb.append(cell.x).append(" ").append(cell.y).append("\n");
+        }
+        return sb.toString();
     }
 
     @Override
     public Field clone() {
         var field = new Field();
         field.setCells(cells);
-        field.setWhiteCells(whiteCells);
-        field.setBlackCells(blackCells);
         return field;
     }
 }

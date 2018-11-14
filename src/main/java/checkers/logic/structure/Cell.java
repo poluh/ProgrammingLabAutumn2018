@@ -46,7 +46,7 @@ public class Cell {
     public boolean equals(Object o) {
         if (this == o) return true;
         var cell = (Cell) o;
-        return point.equals(o);
+        return point.equals(cell);
     }
 
     @Override
