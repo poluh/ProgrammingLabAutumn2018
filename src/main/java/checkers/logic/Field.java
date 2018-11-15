@@ -30,17 +30,20 @@ public class Field implements Cloneable {
 
     public Set<Point> thatCanChop(boolean isWhite) {
         var res = new HashSet<Point>();
-        var enemiesIsEmpty = new AtomicBoolean(true);
-        cells.forEach((key, value) -> {
-            if (value.isWhite() == isWhite) {
-                if (!possibleMovesWithEnemies(key, isWhite).isEmpty()) {
-                    enemiesIsEmpty.set(false);
-                    res.add(key);
-                } else if (!possibleEmptyMoves(key).isEmpty() && enemiesIsEmpty.get()) {
-                    res.add(key);
-                }
+        var checkCells = isWhite ? getWhiteCells() : getBlackCells();
+
+        var enemiesEmpty = true;
+
+        for (Cell cell : checkCells) {
+            var point = cell.getPoint();
+            if (!possibleMovesWithEnemies(point, isWhite).isEmpty()) {
+                System.out.println(point);
+                enemiesEmpty = false;
+                res.add(point);
+            } else if (enemiesEmpty && !possibleEmptyMoves(point).isEmpty()) {
+                res.add(point);
             }
-        });
+        }
 
         return res;
     }
@@ -63,7 +66,6 @@ public class Field implements Cloneable {
     public Map<Point, Point> possibleMovesWithEnemies(Point point, boolean isWhite) {
         var res = new HashMap<Point, Point>();
         if (!cells.containsKey(point) || cells.get(point).isEmpty()) return res;
-
         for (var dx = -1; dx < 2; dx += 2) {
             for (var dy = -1; dy < 2; dy += 2) {
                 var forCheck = new Point(point.x + dx, point.y + dy);
