@@ -7,6 +7,13 @@
     <groupId>com.checkers</groupId>
     <artifactId>RussianCheckers</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>11-ea+19</version>
+        </dependency>
+    </dependencies>
 
     
 </project>
