@@ -12,8 +12,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         var group = new Group();
-        var scene = new Scene(group, 400, 400);
-        var canvas = new Canvas(400, 400);
+        var scene = new Scene(group, Painter.CELL_SIZE * 8, Painter.CELL_SIZE * 8);
+        var canvas = new Canvas(scene.getWidth(), scene.getHeight());
 
         var field = new Field();
         field.init();
@@ -26,7 +26,7 @@ public class Main extends Application {
         var gp = new GameProcessor(field, painter);
 
         canvas.setOnMouseClicked(event ->
-                gp.setPoint(new Point((int) event.getX() / 50, (int) event.getY() / 50)));
+                gp.setPoint(new Point((int) event.getX() / Painter.CELL_SIZE, (int) event.getY() / Painter.CELL_SIZE)));
 
         primaryStage.setScene(scene);
         primaryStage.show();

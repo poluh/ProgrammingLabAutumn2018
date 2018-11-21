@@ -4,7 +4,6 @@ import checkers.logic.structure.Cell;
 import checkers.logic.structure.Point;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class Field implements Cloneable {
@@ -29,21 +28,19 @@ public class Field implements Cloneable {
     }
 
     public Set<Point> thatCanChop(boolean isWhite) {
-        var res = new HashSet<Point>();
+        Set<Point> res;
         var checkCells = isWhite ? getWhiteCells() : getBlackCells();
 
-        var enemiesEmpty = true;
+        res = checkCells
+                .stream()
+                .filter(cell -> !possibleMovesWithEnemies(cell.getPoint(), isWhite).isEmpty())
+                .map(Cell::getPoint).collect(Collectors.toSet());
 
-        for (Cell cell : checkCells) {
-            var point = cell.getPoint();
-            if (!possibleMovesWithEnemies(point, isWhite).isEmpty()) {
-                System.out.println(point);
-                enemiesEmpty = false;
-                res.add(point);
-            } else if (enemiesEmpty && !possibleEmptyMoves(point).isEmpty()) {
-                res.add(point);
-            }
-        }
+        if (res.isEmpty())
+            res = checkCells
+                    .stream()
+                    .filter(cell -> !possibleEmptyMoves(cell.getPoint()).isEmpty())
+                    .map(Cell::getPoint).collect(Collectors.toSet());
 
         return res;
     }
@@ -66,30 +63,32 @@ public class Field implements Cloneable {
     public Map<Point, Point> possibleMovesWithEnemies(Point point, boolean isWhite) {
         var res = new HashMap<Point, Point>();
         if (!cells.containsKey(point) || cells.get(point).isEmpty()) return res;
+
         for (var dx = -1; dx < 2; dx += 2) {
             for (var dy = -1; dy < 2; dy += 2) {
-                var forCheck = new Point(point.x + dx, point.y + dy);
-                var toMove = new Point(forCheck.x + dx, forCheck.y + dy);
+                var enemyPoint = new Point(point.x + dx, point.y + dy);
+                var pointToMove = new Point(enemyPoint.x + dx, enemyPoint.y + dy);
 
-                if (!isNormalPoss(forCheck) || !isNormalPoss(toMove)) break;
+                if (isNormalPoss(pointToMove) && isNormalPoss(enemyPoint)) {
 
-                var cellCheck = cells.get(forCheck);
-                var cellToMove = cells.get(toMove);
+                    var cellToMove = cells.get(pointToMove);
+                    var enemyCell = cells.get(enemyPoint);
 
-                if (!cellCheck.isEmpty() && cellCheck.isWhite() == !isWhite && cellToMove.isEmpty()) {
-                    res.put(toMove, forCheck);
+                    if (cellToMove.isEmpty() && enemyCell.isWhite() != isWhite && !enemyCell.isEmpty()) {
+                        res.put(pointToMove, enemyPoint);
+                    }
                 }
             }
         }
         return res;
     }
 
-    public void move(Point newPos, Point toMove) {
-        move(newPos, toMove, null, false);
+    public void move(Point oldPos, Point toMove) {
+        move(oldPos, toMove, null, false);
     }
 
-    public void move(Point newPos, Point toMove, Point chopPoint) {
-        move(newPos, toMove, chopPoint, true);
+    public void move(Point oldPos, Point toMove, Point chopPoint) {
+        move(oldPos, toMove, chopPoint, true);
     }
 
     private void move(Point oldPos, Point toMove, Point chopPoint, boolean chop) {
@@ -97,7 +96,10 @@ public class Field implements Cloneable {
 
         if (chop) cells.get(chopPoint).setEmpty(true);
 
-        cells.put(toMove, cells.get(oldPos));
+        var cell = cells.get(oldPos);
+        cell.setPoint(toMove);
+
+        cells.put(toMove, cell);
         cells.put(oldPos, new Cell(oldPos));
     }
 
@@ -130,5 +132,9 @@ public class Field implements Cloneable {
         var field = new Field();
         field.setCells(cells);
         return field;
+    }
+
+    public void printPoints() {
+        cells.values().forEach(System.out::println);
     }
 }

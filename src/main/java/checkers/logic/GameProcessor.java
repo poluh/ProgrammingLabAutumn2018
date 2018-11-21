@@ -4,7 +4,6 @@ import checkers.UI.Painter;
 import checkers.logic.structure.Point;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class GameProcessor {
     private boolean isWhite = true;
@@ -23,6 +22,7 @@ public class GameProcessor {
     }
 
     public void setPoint(Point point) {
+        field.printPoints();
         if (!moving) {
             if (!field.thatCanChop(isWhite).contains(point)) return;
 

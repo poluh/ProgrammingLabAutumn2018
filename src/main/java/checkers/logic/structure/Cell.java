@@ -42,6 +42,10 @@ public class Cell {
         isEmpty = empty;
     }
 
+    public void setPoint(Point point) {
+        this.point = point;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,5 +56,10 @@ public class Cell {
     @Override
     public int hashCode() {
         return Objects.hash(point, isEmpty(), isWhite(), isKing());
+    }
+
+    @Override
+    public String toString() {
+        return point.toString() + " isWhite=" + isWhite +  " isEmpty=" + isEmpty;
     }
 }

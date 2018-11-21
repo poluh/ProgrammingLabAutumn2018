@@ -11,7 +11,7 @@ public class Painter {
     private static final Color WHITE_CELL = Color.WHITESMOKE;
     private static final Color BLACK_CELL = Color.DARKGRAY;
     private static final Color EMPTY_CELL = Color.BLACK;
-    public static final int CELL_SIZE = 50;
+    public static final int CELL_SIZE = 100;
 
     private GraphicsContext gc;
 
