@@ -1,5 +1,6 @@
 package checkers.logic;
 
+import AI.AI;
 import checkers.UI.Painter;
 import checkers.logic.structure.Point;
 
@@ -13,6 +14,8 @@ public class GameProcessor {
     private Point wasCurrentPoint;
     private Field field;
     private Painter painter;
+    private AI ai = null;
+    private boolean aiColorIsWhite = false;
 
     public GameProcessor(Field field, Painter painter) {
         this.field = field;
@@ -49,7 +52,12 @@ public class GameProcessor {
             move(point, enemy);
             isWhite = !isWhite;
 
-            if (!wasEnemies.isEmpty() && !field.possibleMovesWithEnemies(point, !isWhite).isEmpty()) isWhite = !isWhite;
+            if (!wasEnemies.isEmpty() && !field.possibleMovesWithEnemies(point, !isWhite).isEmpty()) {
+                isWhite = !isWhite;
+                return;
+            }
+
+            if (ai != null && aiColorIsWhite == isWhite) ai.move(0);
         }
     }
 
@@ -65,5 +73,21 @@ public class GameProcessor {
 
     public boolean isMoving() {
         return moving;
+    }
+
+    public Set<Point> getWasPossibleMoves() {
+        return wasPossibleMoves;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public boolean isWhite() {
+        return isWhite;
+    }
+
+    public void withAI() {
+        ai = new AI(this);
     }
 }

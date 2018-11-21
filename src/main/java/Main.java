@@ -1,3 +1,4 @@
+import AI.AI;
 import checkers.UI.Painter;
 import checkers.logic.Field;
 import checkers.logic.GameProcessor;
@@ -24,6 +25,7 @@ public class Main extends Application {
         painter.printField();
 
         var gp = new GameProcessor(field, painter);
+        gp.withAI();
 
         canvas.setOnMouseClicked(event ->
                 gp.setPoint(new Point((int) event.getX() / Painter.CELL_SIZE, (int) event.getY() / Painter.CELL_SIZE)));

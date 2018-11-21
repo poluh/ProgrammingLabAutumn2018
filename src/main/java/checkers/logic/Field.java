@@ -83,24 +83,24 @@ public class Field implements Cloneable {
         return res;
     }
 
-    public void move(Point oldPos, Point toMove) {
-        move(oldPos, toMove, null, false);
+    public void move(Point from, Point toMove) {
+        move(from, toMove, null, false);
     }
 
-    public void move(Point oldPos, Point toMove, Point chopPoint) {
-        move(oldPos, toMove, chopPoint, true);
+    public void move(Point from, Point toMove, Point chopPoint) {
+        move(from, toMove, chopPoint, true);
     }
 
-    private void move(Point oldPos, Point toMove, Point chopPoint, boolean chop) {
-        if (!isNormalPoss(oldPos) || !isNormalPoss(toMove) || (chop && !isNormalPoss(chopPoint))) return;
+    private void move(Point from, Point toMove, Point chopPoint, boolean chop) {
+        if (!isNormalPoss(from) || !isNormalPoss(toMove) || (chop && !isNormalPoss(chopPoint))) return;
 
         if (chop) cells.get(chopPoint).setEmpty(true);
 
-        var cell = cells.get(oldPos);
+        var cell = cells.get(from);
         cell.setPoint(toMove);
 
         cells.put(toMove, cell);
-        cells.put(oldPos, new Cell(oldPos));
+        cells.put(from, new Cell(from));
     }
 
     public boolean isNormalPoss(Point point) {
