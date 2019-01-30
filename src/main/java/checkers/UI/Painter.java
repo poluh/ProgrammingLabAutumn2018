@@ -1,5 +1,6 @@
 package checkers.UI;
 
+import checkers.logic.Field;
 import checkers.logic.structure.Point;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -12,7 +13,6 @@ public class Painter {
     private static final Color BLACK_CELL = Color.DARKGRAY;
     private static final Color EMPTY_CELL = Color.BLACK;
 
-    public static final int DEFAULT_FIELD_SIZE = 8;
     public static final int CELL_SIZE = 100;
 
     private GraphicsContext gc;
@@ -23,12 +23,13 @@ public class Painter {
 
     public void printField() {
         gc.setFill(EMPTY_CELL);
-        for (var x = 0; x < DEFAULT_FIELD_SIZE; ++x) {
-            for (var y = 0; y < DEFAULT_FIELD_SIZE; ++y) {
+        for (var x = 0; x < Field.FIELD_SIZE; ++x) {
+            for (var y = 0; y < Field.FIELD_SIZE; ++y) {
                 if ((x + y) % 2 == 0) {
                     var point = new Point(x, y);
                     printCell(point, false, true);
-                    printCell(point, y > 4, y > 2 && y < 5);
+                    // y > 2 and y < FieldSize 'coze checkers in 3 rows
+                    printCell(point, y > Field.FIELD_CENTER, y > 2 && y < Field.FIELD_SIZE - 3);
                 }
             }
         }

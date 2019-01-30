@@ -3,7 +3,7 @@ package AI;
 import AI.structures.Graph;
 import AI.structures.Node;
 import checkers.logic.Field;
-import checkers.logic.GameProcessor;
+import checkers.logic.GameController;
 import checkers.logic.structure.Point;
 
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import java.util.Random;
 public class AI {
 
     private Random random = new Random();
-    private GameProcessor gp;
+    private GameController gp;
 
-    public AI(GameProcessor gp) {
+    public AI(GameController gp) {
         this.gp = gp;
     }
 

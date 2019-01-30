@@ -7,6 +7,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Field implements Cloneable {
+
+    public static final int FIELD_SIZE = 8;
+    public static final int FIELD_CENTER = FIELD_SIZE / 2;
     private Map<Point, Cell> cells;
 
     public Field() {
@@ -14,12 +17,14 @@ public class Field implements Cloneable {
     }
 
     public void init() {
-        for (int x = 0; x < 8; ++x) {
-            for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < FIELD_SIZE; ++x) {
+            for (int y = 0; y < FIELD_SIZE; ++y) {
                 var point = new Point(x, y);
                 var cell = new Cell(point);
-                if ((x + y) % 2 == 0 && (y < 3 || y > 4)) {
-                    cell.setWhite(y > 4);
+
+                // Staggered and set color for cells
+                if ((x + y) % 2 == 0 && (y < FIELD_CENTER - 1 || y > FIELD_CENTER)) {
+                    cell.setWhite(y > FIELD_CENTER);
                     cell.setEmpty(false);
                 }
                 cells.put(point, cell);
@@ -27,15 +32,22 @@ public class Field implements Cloneable {
         }
     }
 
+
+    /**
+     * @param isWhite for check each cells such color
+     * @return Set of points, that can chop-chop
+     */
     public Set<Point> thatCanChop(boolean isWhite) {
         Set<Point> res;
         var checkCells = isWhite ? getWhiteCells() : getBlackCells();
 
+        // Find all cells, that can move and kill anybody
         res = checkCells
                 .stream()
                 .filter(cell -> !possibleMovesWithEnemies(cell.getPoint(), isWhite).isEmpty())
                 .map(Cell::getPoint).collect(Collectors.toSet());
 
+        // Else find just way for move
         if (res.isEmpty())
             res = checkCells
                     .stream()
@@ -45,11 +57,18 @@ public class Field implements Cloneable {
         return res;
     }
 
+
+    /**
+     * @param point to search around her empty cells
+     * @return a set of points to which can chop
+     */
     public Set<Point> possibleEmptyMoves(Point point) {
         var res = new HashSet<Point>();
         if (!cells.containsKey(point) || cells.get(point).isEmpty()) return res;
 
         var cell = cells.get(point);
+
+        // If is White we can just gonna down or up for black
         int dy = cell.isWhite() ? -1 : 1;
         for (var dx = -1; dx < 2; dx += 2) {
             var pointCheck = new Point(point.x + dx, point.y + dy);
@@ -60,6 +79,11 @@ public class Field implements Cloneable {
         return res;
     }
 
+    /**
+     * @param point to search around her enemies
+     * @param isWhite to correctly identify enemy's color
+     * @return map of point to move and enemy position
+     */
     public Map<Point, Point> possibleMovesWithEnemies(Point point, boolean isWhite) {
         var res = new HashMap<Point, Point>();
         if (!cells.containsKey(point) || cells.get(point).isEmpty()) return res;
@@ -70,7 +94,6 @@ public class Field implements Cloneable {
                 var pointToMove = new Point(enemyPoint.x + dx, enemyPoint.y + dy);
 
                 if (isNormalPoss(pointToMove) && isNormalPoss(enemyPoint)) {
-
                     var cellToMove = cells.get(pointToMove);
                     var enemyCell = cells.get(enemyPoint);
 
@@ -91,10 +114,16 @@ public class Field implements Cloneable {
         move(from, toMove, chopPoint, true);
     }
 
-    private void move(Point from, Point toMove, Point chopPoint, boolean chop) {
-        if (!isNormalPoss(from) || !isNormalPoss(toMove) || (chop && !isNormalPoss(chopPoint))) return;
+    /**
+     * @param from point from chop
+     * @param toMove point to chop
+     * @param cutPoint point that can be cut
+     * @param isCut cut move or jst move
+     */
+    private void move(Point from, Point toMove, Point cutPoint, boolean isCut) {
+        if (!isNormalPoss(from) || !isNormalPoss(toMove) || (isCut && !isNormalPoss(cutPoint))) return;
 
-        if (chop) cells.get(chopPoint).setEmpty(true);
+        if (isCut) cells.get(cutPoint).setEmpty(true);
 
         var cell = cells.get(from);
         cell.setPoint(toMove);
@@ -104,7 +133,7 @@ public class Field implements Cloneable {
     }
 
     public boolean isNormalPoss(Point point) {
-        return point.x >= 0 && point.x < 8 && point.y >= 0 && point.y < 8;
+        return point.x >= 0 && point.x < FIELD_SIZE && point.y >= 0 && point.y < FIELD_SIZE;
     }
 
     public Set<Cell> getWhiteCells() {
@@ -119,14 +148,10 @@ public class Field implements Cloneable {
         this.cells = cells;
     }
 
-    public String print() {
-        var sb = new StringBuilder();
-        for (Point cell : cells.keySet()) {
-            sb.append(cell.x).append(" ").append(cell.y).append("\n");
-        }
-        return sb.toString();
-    }
 
+    /**
+     * Print all cells to console
+     */
     public void printPoints() {
         cells.values().forEach(System.out::println);
     }

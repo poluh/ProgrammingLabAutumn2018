@@ -7,16 +7,26 @@ import checkers.logic.structure.Point;
 
 import java.util.*;
 
-public class GameProcessor {
+
+/**
+ * The main class for control game rule and all everything else
+ */
+public class GameController {
+    // Current move
     private boolean isWhite = true;
+    // Move in process or user just select cell for move
     private boolean moving = false;
+    // Last enemies
     private Map<Point, Point> wasEnemies;
+    // Last possible moves
     private Set<Point> wasPossibleMoves;
     private Point wasCurrentPoint;
     private Field field;
     private Painter painter;
+    private static final int AI_DEPTH = 0;
     private AI ai = null;
     private Winner winner = Winner.NO_ONE;
+    // Count kings of each user's color
     private int whiteKings = 0;
     private int blackKings = 0;
 
@@ -27,20 +37,23 @@ public class GameProcessor {
         NO_ONE
     }
 
-    public GameProcessor(Field field, Painter painter) {
+    public GameController(Field field, Painter painter) {
         this.field = field;
         this.painter = painter;
         wasPossibleMoves = new HashSet<>();
         wasEnemies = new HashMap<>();
     }
 
+    /**
+     * @param point is point on witch user wanna choose or to move
+     */
     public void setPoint(Point point) {
-        field.printPoints();
         if (!moving) {
             firstSetPoint(point);
         } else {
             secondSetPoint(point);
         }
+        // Check winner
         winner = getWinner();
     }
 
@@ -77,7 +90,7 @@ public class GameProcessor {
         }
 
         boolean aiColorIsWhite = false;
-        if (ai != null && aiColorIsWhite == isWhite) ai.move(1);
+        if (ai != null && aiColorIsWhite == isWhite) ai.move(AI_DEPTH);
     }
 
     private Winner getWinner() {
