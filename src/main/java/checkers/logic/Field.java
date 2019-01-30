@@ -108,7 +108,7 @@ public class Field implements Cloneable {
     }
 
     public Set<Cell> getWhiteCells() {
-        return cells.values().stream().filter(Cell::isWhite).collect(Collectors.toSet());
+        return cells.values().stream().filter(cell -> cell.isWhite() && !cell.isEmpty()).collect(Collectors.toSet());
     }
 
     public Set<Cell> getBlackCells() {
@@ -127,14 +127,27 @@ public class Field implements Cloneable {
         return sb.toString();
     }
 
+    public void printPoints() {
+        cells.values().forEach(System.out::println);
+    }
+
     @Override
     public Field clone() {
         var field = new Field();
-        field.setCells(cells);
+        field.setCells(new HashMap<>(this.cells));
         return field;
     }
 
-    public void printPoints() {
-        cells.values().forEach(System.out::println);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Field)) return false;
+        Field field = (Field) o;
+        return Objects.equals(cells, field.cells);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cells);
     }
 }

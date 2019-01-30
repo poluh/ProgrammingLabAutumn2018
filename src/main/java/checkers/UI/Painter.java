@@ -11,6 +11,8 @@ public class Painter {
     private static final Color WHITE_CELL = Color.WHITESMOKE;
     private static final Color BLACK_CELL = Color.DARKGRAY;
     private static final Color EMPTY_CELL = Color.BLACK;
+
+    public static final int DEFAULT_FIELD_SIZE = 8;
     public static final int CELL_SIZE = 100;
 
     private GraphicsContext gc;
@@ -21,8 +23,8 @@ public class Painter {
 
     public void printField() {
         gc.setFill(EMPTY_CELL);
-        for (var x = 0; x < 8; ++x) {
-            for (var y = 0; y < 8; ++y) {
+        for (var x = 0; x < DEFAULT_FIELD_SIZE; ++x) {
+            for (var y = 0; y < DEFAULT_FIELD_SIZE; ++y) {
                 if ((x + y) % 2 == 0) {
                     var point = new Point(x, y);
                     printCell(point, false, true);
@@ -53,4 +55,15 @@ public class Painter {
         printCell(from, isWhite, true);
         printCell(toMove, isWhite, false);
     }
+
+    public void paintWin(String winner) {
+        var width = gc.getCanvas().getWidth();
+        var height = gc.getCanvas().getHeight();
+
+        gc.setFill(Color.PAPAYAWHIP);
+        gc.fillRect(200, 200, width - 400, height - 400);
+        gc.setFill(Color.SILVER);
+        gc.fillText(winner, width / 2, height / 2);
+    }
+
 }

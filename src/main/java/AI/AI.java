@@ -1,12 +1,13 @@
 package AI;
 
+import AI.structures.Graph;
+import AI.structures.Node;
 import checkers.logic.Field;
 import checkers.logic.GameProcessor;
 import checkers.logic.structure.Point;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class AI {
 
@@ -19,7 +20,37 @@ public class AI {
 
     public boolean move(int depth) {
         if (depth == 0) return randomMove();
-        return false;
+        return depthMove(depth, new Graph<>(), gp.getField(), gp.getField());
+    }
+
+    private boolean depthMove(int depth, Graph<Field> graph, Field lastCase, Field rootField) {
+        if (depth == 0) {
+            return randomMove();
+        }
+
+        var field = lastCase.clone();
+
+        var weigth = (double) field.getBlackCells().size() / (double) field.getWhiteCells().size();
+        graph.addNode(new Node<>(field, weigth));
+
+        var possibleMoves = field.thatCanChop(gp.isWhite());
+        for (Point point : possibleMoves) {
+            var fieldClone = field.clone();
+            var enemyMoves = field.possibleMovesWithEnemies(point, gp.isWhite());
+            var emptyMoves = field.possibleEmptyMoves(point);
+
+            var toMove = enemyMoves.isEmpty() ? (Point) emptyMoves.toArray()[0] : (Point) enemyMoves.keySet().toArray()[0];
+            if (!enemyMoves.isEmpty()) {
+                fieldClone.move(point, toMove, enemyMoves.get(toMove));
+            } else {
+                fieldClone.move(point, toMove);
+            }
+
+            var weigthClone = (double) fieldClone.getBlackCells().size() / (double) fieldClone.getWhiteCells().size();
+            graph.connectNodes(new Node<>(field, weigth), new Node<>(fieldClone, weigthClone));
+            return depthMove(depth - 1, graph, fieldClone, rootField);
+        }
+        return true;
     }
 
     private boolean randomMove() {
